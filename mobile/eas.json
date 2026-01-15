@@ -5,7 +5,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://nootraappdeldolar.jodaz.xyz"
+        "EXPO_PUBLIC_API_URL": "https://otraappdeldolarenvzla.jodaz.xyz"
       }
     },
     "production": {}

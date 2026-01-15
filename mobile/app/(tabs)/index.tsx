@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, SafeAreaView, StatusBar, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, StatusBar, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import React from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -34,8 +34,8 @@ export default function TasasScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
-            <Text style={styles.headerIcon}>💰</Text>
-            <Text style={styles.headerTitle}>Finanzas VE</Text>
+            <Image source={require('../../assets/images/logo.png')} style={styles.headerIcon} />
+            <Text style={styles.headerTitle}>Otra App del Dolar en Vzla</Text>
           </View>
           <Text style={styles.headerSubtitle}>Tasas de cambio en Venezuela</Text>
         </View>
@@ -90,18 +90,20 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   headerTitleRow: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     marginBottom: 4,
   },
   headerIcon: {
-    fontSize: 36,
+    width: 40,
+    height: 40,
     marginRight: 8,
   },
   headerTitle: {
     color: '#fff',
     fontSize: 36,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   headerSubtitle: {
     color: '#9ca3af',

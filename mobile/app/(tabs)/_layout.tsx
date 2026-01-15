@@ -24,14 +24,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tasas',
+          title: 'OtraAppDelDolarEnVzla',
+          tabBarLabel: 'Tasas',
           tabBarIcon: ({ color }) => <BarChart2 size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="convert"
         options={{
-          title: 'Convertir',
+          title: 'OtraAppDelDolarEnVzla',
+          tabBarLabel: 'Convertir',
           tabBarIcon: ({ color }) => <RefreshCw size={24} color={color} />,
         }}
       />
