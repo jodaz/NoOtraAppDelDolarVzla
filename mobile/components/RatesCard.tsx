@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Animated, Easing } from 'react-native';
-import { DollarSign, Euro } from 'lucide-react-native';
+import { DollarSign, Euro, RotateCcw } from 'lucide-react-native';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ExchangeData } from '../stores/exchange-store';
@@ -84,6 +84,10 @@ export function RatesCard({ data }: RatesCardProps) {
     showCopyToast();
   };
 
+  const handleReset = () => {
+    setAmount('1');
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
@@ -145,6 +149,12 @@ export function RatesCard({ data }: RatesCardProps) {
             </TouchableOpacity>
           );
         })}
+      </View>
+
+      <View style={styles.actionRow}>
+        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+          <RotateCcw size={20} color="#F1C40F" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.footer}>
@@ -277,6 +287,18 @@ const styles = StyleSheet.create({
   rateCurrency: {
     color: '#F1C40F',
     fontSize: 18,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+  },
+  resetButton: {
+    backgroundColor: '#1B6B3E',
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#448A44',
   },
   footer: {
     marginTop: 32,
