@@ -110,19 +110,52 @@ export class ExchangeRatesService {
   async getBinanceAverage(asset: string, fiat: string, tradeType: string) {
     const price = await this.binanceProvider.getAveragePrice(asset, fiat, tradeType);
     
-    // Save USDT in history if it's USDT
+    // Proactively update USDT in DB as well if it's USDT
     if (asset === 'USDT' && fiat === 'VES') {
       await this.supabaseService.getClient()
         .from('exchange_rates')
-        .insert({
+        .upsert({
           symbol: 'USDT',
           label: 'Binance USDT',
           value: price,
           provider: 'Binance',
           currency: 'VES'
-        });
+        }, { onConflict: 'symbol' });
     }
 
     return { average: price.toString() };
+  }
+
+  async syncBinancePriceToHistory(asset: string = 'USDT', fiat: string = 'VES', tradeType: string = 'SELL') {
+    this.logger.log(`Starting Binance sync for ${asset}/${fiat} (${tradeType})`);
+    
+    try {
+      const price = await this.binanceProvider.getAveragePrice(asset, fiat, tradeType);
+      
+      if (price <= 0) {
+        throw new Error('Received invalid price from Binance');
+      }
+
+      const { error } = await this.supabaseService.getClient()
+        .from('exchange_rates')
+        .insert({
+          symbol: asset,
+          label: `Binance ${asset}`,
+          value: price,
+          provider: 'Binance',
+          currency: fiat,
+        });
+
+      if (error) {
+        this.logger.error(`Error inserting into exchange_rates: ${error.message}`);
+        throw error;
+      }
+
+      this.logger.log(`Successfully synced Binance price: ${price}`);
+      return { price };
+    } catch (error) {
+      this.logger.error(`Failed to sync Binance price: ${error.message}`);
+      throw error;
+    }
   }
 }
