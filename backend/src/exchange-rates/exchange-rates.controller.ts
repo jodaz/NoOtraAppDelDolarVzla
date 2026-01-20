@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ExchangeRatesService } from './exchange-rates.service';
 import { CreateExchangeRateDto } from './dto/create-exchange-rate.dto';
 import { UpdateExchangeRateDto } from './dto/update-exchange-rate.dto';
+import { UpdateBcvRatesDto } from './dto/update-bcv-rates.dto';
 
 @Controller('exchange-rates')
 export class ExchangeRatesController {
@@ -10,6 +11,11 @@ export class ExchangeRatesController {
   @Post()
   create(@Body() createExchangeRateDto: CreateExchangeRateDto) {
     return this.exchangeRatesService.create(createExchangeRateDto);
+  }
+
+  @Post('bcv')
+  updateBcv(@Body() updateBcvRatesDto: UpdateBcvRatesDto) {
+    return this.exchangeRatesService.updateBcvRates(updateBcvRatesDto);
   }
 
   @Get()

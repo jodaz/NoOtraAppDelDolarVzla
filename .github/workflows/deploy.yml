@@ -66,4 +66,6 @@ jobs:
               --name dollar-app \
               --restart unless-stopped \
               -p 8080:3000 \
+              -e SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+              -e SUPABASE_KEY=${{ secrets.SUPABASE_KEY }} \
               $FULL_IMAGE
