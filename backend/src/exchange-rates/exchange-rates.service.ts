@@ -199,4 +199,45 @@ export class ExchangeRatesService {
       throw error;
     }
   }
+
+  async getHistory(days: number = 7) {
+    const symbols = ['USD', 'EUR', 'USDT'];
+    const client = this.supabaseService.getClient();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const historyData = await Promise.all(
+      symbols.map(async (symbol) => {
+        const { data, error } = await client
+          .from('exchange_rates')
+          .select('value, created_at')
+          .eq('symbol', symbol)
+          .gte('created_at', startDate.toISOString())
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          this.logger.error(`Error fetching history for ${symbol}: ${error.message}`);
+          return { symbol, history: [] };
+        }
+
+        const history = data.map((item) => ({
+          value: item.value,
+          date: item.created_at,
+        }));
+
+        const currentPrice = history.length > 0 ? history[history.length - 1].value : 0;
+        const initialPrice = history.length > 0 ? history[0].value : 0;
+        const change = initialPrice !== 0 ? ((currentPrice - initialPrice) / initialPrice) * 100 : 0;
+
+        return {
+          symbol,
+          currentPrice,
+          change: parseFloat(change.toFixed(2)),
+          history,
+        };
+      })
+    );
+
+    return historyData;
+  }
 }

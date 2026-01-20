@@ -32,7 +32,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo_arepa.svg"
+      "favicon": "./assets/images/logo.png"
     },
     "plugins": [
       "expo-router",
