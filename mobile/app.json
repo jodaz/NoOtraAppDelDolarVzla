@@ -16,6 +16,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jodaz.otraappdeldolarenvzla",
+      "icon": {
+        "dark": "./assets/images/ios-dark.png"
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
