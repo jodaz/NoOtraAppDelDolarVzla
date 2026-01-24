@@ -67,6 +67,7 @@
     "extra": {
       "router": {},
       "eas": {
+        "projectId": "2fc8f913-a2e4-4b9b-a59a-3754fc6a3b69"
       }
     },
     "owner": "jodaz"
