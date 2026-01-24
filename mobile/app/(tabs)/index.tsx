@@ -31,7 +31,7 @@ export default function TasasScreen() {
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Image source={require('../../assets/images/logo.png')} style={styles.headerIcon} />
-            <Text style={styles.headerTitle}>Libera</Text>
+            <Text style={styles.headerTitle}>AKomo</Text>
           </View>
           <Text style={styles.headerSubtitle}>Tasas de cambio en Venezuela</Text>
         </View>

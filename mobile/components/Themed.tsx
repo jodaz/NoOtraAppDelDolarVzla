@@ -32,21 +32,21 @@ const getFontFamily = (baseStyle: any) => {
   const weight = flattened?.fontWeight;
   
   if (weight === '900') {
-    return 'NotoSans_900Black';
+    return 'Zain_900Black';
   }
   if (weight === '800') {
-    return 'NotoSans_800ExtraBold';
+    return 'Zain_800ExtraBold';
   }
   if (weight === 'bold' || weight === '700') {
-    return 'NotoSans_700Bold';
+    return 'Zain_700Bold';
   }
   if (weight === '600') {
-    return 'NotoSans_600SemiBold';
+    return 'Zain_700Bold';
   }
   if (weight === '500') {
-    return 'NotoSans_500Medium';
+    return 'Zain_400Regular';
   }
-  return 'NotoSans_400Regular';
+  return 'Zain_400Regular';
 }
 
 export function Text(props: TextProps) {

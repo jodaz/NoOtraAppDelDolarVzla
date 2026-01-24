@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Libera",
-    "slug": "libera",
+    "name": "AKomo",
+    "slug": "akomo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
-    "scheme": "libera",
+    "scheme": "akomo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jodaz.libera",
+      "bundleIdentifier": "com.jodaz.akomo",
       "icon": {
         "dark": "./assets/images/ios-dark.png"
       },
@@ -30,12 +30,19 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.jodaz.libera"
+      "package": "com.jodaz.akomo"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "AKomo",
+      "shortName": "AKomo",
+      "startUrl": "/",
+      "display": "standalone",
+      "backgroundColor": "#336A33",
+      "themeColor": "#336A33",
+      "lang": "es"
     },
     "plugins": [
       "expo-router",
@@ -60,7 +67,6 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "5bf80979-98ab-40e0-943a-6d76264ca7bf"
       }
     },
     "owner": "jodaz"

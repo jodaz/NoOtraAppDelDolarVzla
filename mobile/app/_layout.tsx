@@ -10,14 +10,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
-import { 
-  NotoSans_400Regular, 
-  NotoSans_500Medium, 
-  NotoSans_600SemiBold,
-  NotoSans_700Bold,
-  NotoSans_800ExtraBold,
-  NotoSans_900Black
-} from '@expo-google-fonts/noto-sans';
+import {
+  Zain_300Light,
+  Zain_400Regular, 
+  Zain_700Bold,
+  Zain_800ExtraBold,
+  Zain_900Black
+} from '@expo-google-fonts/zain';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -37,12 +36,11 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    NotoSans_400Regular,
-    NotoSans_500Medium,
-    NotoSans_600SemiBold,
-    NotoSans_700Bold,
-    NotoSans_800ExtraBold,
-    NotoSans_900Black,
+    Zain_300Light,
+    Zain_400Regular,
+    Zain_700Bold,
+    Zain_800ExtraBold,
+    Zain_900Black,
     ...FontAwesome.font,
   });
 
