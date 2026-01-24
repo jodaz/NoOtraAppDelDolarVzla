@@ -1,0 +1,15 @@
+{
+  "short_name": "AKomo",
+  "name": "AKomo",
+  "icons": [
+    {
+      "src": "./icons/favicon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#336A33",
+  "background_color": "#336A33"
+}
