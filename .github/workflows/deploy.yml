@@ -62,15 +62,18 @@ jobs:
             # Pull the new image
             docker pull $FULL_IMAGE
             
-            # Stop the old container (by name) and any container using port 8080
+            # Stop the old container by name
             docker stop dollar-app || true
             docker rm dollar-app || true
-            # Kill any other container that might be holding port 8080
+            # Kill any other Docker container holding port 8080
             EXISTING=$(docker ps -q --filter "publish=8080")
             if [ -n "$EXISTING" ]; then
               docker stop $EXISTING || true
               docker rm $EXISTING || true
             fi
+            # Kill any host-level process holding port 8080 (e.g. a zombie from a previous run)
+            fuser -k 8080/tcp || true
+            sleep 1
             docker run -d \
               --name dollar-app \
               --restart unless-stopped \
