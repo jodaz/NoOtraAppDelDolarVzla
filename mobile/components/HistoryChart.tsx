@@ -34,7 +34,7 @@ export const HistoryChart = ({ data }: Props) => {
   const firstWithData = data.find((d) => d.history.length > 0);
   if (!firstWithData) return null;
 
-  // Build datasets — label every ~6th point to avoid crowding
+  // Build datasets
   const buildDataset = (symbolData: ExchangeHistory) =>
     symbolData.history.map((h, i) => ({
       value: h.value,
@@ -43,7 +43,7 @@ export const HistoryChart = ({ data }: Props) => {
           ? format(new Date(h.date), 'd MMM', { locale: es })
           : '',
       labelTextStyle: { color: '#F1C40F', fontSize: 9 },
-      hideDataPoint: true,
+      // dataPointText: h.value.toString(),
     }));
 
   // Primary series: prefer USD
@@ -51,66 +51,137 @@ export const HistoryChart = ({ data }: Props) => {
   const primaryDataset = buildDataset(primarySymbol);
   const primaryColor = COLORS[primarySymbol.symbol as keyof typeof COLORS] ?? '#84cc16';
 
-  // Secondary / tertiary series
-  const additionalDatasets = data
-    .filter((d) => d !== primarySymbol && d.history.length > 0)
-    .map((d) => ({
-      data: buildDataset(d),
-      color: COLORS[d.symbol as keyof typeof COLORS] ?? '#aaaaaa',
-      symbol: d.symbol,
-    }));
+  // USDT series
+  const usdtSymbol = data.find((d) => d.symbol === 'USDT');
+  const usdtDataset = usdtSymbol ? buildDataset(usdtSymbol) : undefined;
+  const usdtColor = COLORS.USDT;
 
-  // chartWidth is the measured container width minus the yAxis label column (~40px)
-  // Fall back to a safe value until layout fires
-  const chartWidth = containerWidth > 0 ? containerWidth - 40 : 260;
+  // EUR series
+  const eurSymbol = data.find((d) => d.symbol === 'EUR');
+  const eurDataset = eurSymbol ? buildDataset(eurSymbol) : undefined;
+  const eurColor = COLORS.EUR;
+
+  // Calculate yAxisOffset and maxValue across all datasets if available
+  const datasetsToBound = [primaryDataset];
+  if (usdtDataset) datasetsToBound.push(usdtDataset);
+  if (eurDataset) datasetsToBound.push(eurDataset);
+
+  const allValues = datasetsToBound.flatMap(dataset => dataset.map(d => d.value));
+  const maxDataValue = Math.max(...allValues);
+  const minDataValue = Math.min(...allValues);
+
+  // Create an offset slightly below the min value so it doesn't clip the bottom
+  const yAxisOffset = Math.max(0, Math.floor(minDataValue * 0.98));
+
+  // maxValue in gifted-charts is the value *above* the yAxisOffset
+  const chartMaxValue = Math.ceil((maxDataValue - yAxisOffset) * 1.15); // Add 15% headroom
+
+  // chartWidth is the measured container width minus the yAxis label column (~50px for safety)
+  // Fall back to a value that fits mobile screens until layout fires
+  const chartWidth = (containerWidth > 0 ? containerWidth - 50 : 300) - 50;
+
+  // Calculate spacing so the chart fills the available width
+  // Subtract initialSpacing from chartWidth to get the actual space for intervals
+  const initialSpacing = 0;
+  const numPoints = primarySymbol.history.length;
+  const spacing = numPoints > 1 ? (chartWidth - initialSpacing) / (numPoints - 1) : 0;
 
   return (
     <View style={styles.container} onLayout={onLayout}>
       {containerWidth > 0 && (
         <LineChart
-          areaChart={false}
+          data3={eurDataset}
+          data2={usdtDataset}
           data={primaryDataset}
-          data2={additionalDatasets[0]?.data}
-          data3={additionalDatasets[1]?.data}
-          color1={primaryColor}
-          color2={additionalDatasets[0]?.color}
-          color3={additionalDatasets[1]?.color}
+          color3={eurColor}
+          color2={usdtColor}
+          color={primaryColor}
           width={chartWidth}
+          initialSpacing={initialSpacing}
+          spacing={spacing}
+          noOfSections={3}
           height={220}
-          thickness={2.5}
-          thickness2={2.5}
-          thickness3={2.5}
-          curved
-          hideDataPoints
-          hideDataPoints2
-          hideDataPoints3
+          dataPointsColor="#F1C40F"
           backgroundColor="transparent"
-          rulesColor="#145931"
-          rulesType="solid"
-          yAxisColor="transparent"
+          rulesColor="#062212ff"
+          yAxisColor="#448A44"
           xAxisColor="#448A44"
-          yAxisTextStyle={styles.axisLabel}
+          yAxisOffset={yAxisOffset}
+          maxValue={chartMaxValue}
+          thickness={3}
           xAxisLabelTextStyle={styles.axisLabel}
-          noOfSections={4}
-          initialSpacing={8}
-          endSpacing={8}
+          yAxisTextStyle={styles.axisLabel}
+          // hideDataPoints
+          // pointerConfig={{
+          //   pointerStripUptoDataPoint: true,
+          //   pointerStripColor: 'rgba(241, 196, 15, 0.5)',
+          //   pointerStripWidth: 2,
+          //   strokeDashArray: [2, 5],
+          //   radius: 4,
+          //   pointerColor: '#F1C40F',
+          //   pointerLabelComponent: (items: any) => {
+          //     return (
+          //       <View style={styles.pointerLabel}>
+          //         <Text style={styles.pointerDate}>
+          //           {items[0].label || format(new Date(primarySymbol.history[items[0].index]?.date), 'd MMM', { locale: es })}
+          //         </Text>
+          //         <View style={styles.pointerValues}>
+          //           {items.map((item: any, index: number) => {
+          //             const seriesSymbol = index === 0 ? primarySymbol.symbol : (index === 1 ? usdtSymbol?.symbol : eurSymbol?.symbol);
+          //             const color = index === 0 ? primaryColor : (index === 1 ? usdtColor : eurColor);
+          //             if (!seriesSymbol) return null;
+          //             return (
+          //               <View key={index} style={styles.pointerValueRow}>
+          //                 <View style={[styles.legendDot, { backgroundColor: color, width: 8, height: 8 }]} />
+          //                 <Text style={styles.pointerValueText}>
+          //                   {seriesSymbol}: {item.value}
+          //                 </Text>
+          //               </View>
+          //             );
+          //           })}
+          //         </View>
+          //       </View>
+          //     );
+          //   },
+          //   pointerLabelWidth: 120,
+          //   pointerLabelHeight: 80,
+          //   activatePointersOnLongPress: false,
+          // }}
         />
       )}
 
       {/* Legend */}
       <View style={styles.legend}>
-        {[primarySymbol, ...data.filter((d) => d !== primarySymbol && d.history.length > 0)].map(
-          (d) => (
-            <View key={d.symbol} style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS[d.symbol as keyof typeof COLORS] ?? '#aaa' },
-                ]}
-              />
-              <Text style={styles.legendText}>{SERIES_LABEL[d.symbol] ?? d.symbol}</Text>
-            </View>
-          )
+        <View style={styles.legendItem}>
+          <View
+            style={[
+              styles.legendDot,
+              { backgroundColor: primaryColor },
+            ]}
+          />
+          <Text style={styles.legendText}>{SERIES_LABEL[primarySymbol.symbol] ?? primarySymbol.symbol}</Text>
+        </View>
+        {eurSymbol && (
+          <View style={styles.legendItem}>
+            <View
+              style={[
+                styles.legendDot,
+                { backgroundColor: eurColor },
+              ]}
+            />
+            <Text style={styles.legendText}>{SERIES_LABEL[eurSymbol.symbol] ?? eurSymbol.symbol}</Text>
+          </View>
+        )}
+        {usdtSymbol && (
+          <View style={styles.legendItem}>
+            <View
+              style={[
+                styles.legendDot,
+                { backgroundColor: usdtColor },
+              ]}
+            />
+            <Text style={styles.legendText}>{SERIES_LABEL[usdtSymbol.symbol] ?? usdtSymbol.symbol}</Text>
+          </View>
         )}
       </View>
     </View>
@@ -151,5 +222,32 @@ const styles = StyleSheet.create({
   legendText: {
     color: '#F1C40F',
     fontSize: 12,
+  },
+  pointerLabel: {
+    backgroundColor: '#062212',
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#448A44',
+    minWidth: 100,
+  },
+  pointerDate: {
+    color: '#F1C40F',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  pointerValues: {
+    gap: 2,
+  },
+  pointerValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  pointerValueText: {
+    color: '#fff',
+    fontSize: 10,
   },
 });
