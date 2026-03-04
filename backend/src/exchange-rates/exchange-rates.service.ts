@@ -199,4 +199,62 @@ export class ExchangeRatesService {
       throw error;
     }
   }
+
+  async getHistory(days: number = 7) {
+    const symbols = ['USD', 'EUR', 'USDT'];
+    const client = this.supabaseService.getClient();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const historyData = await Promise.all(
+      symbols.map(async (symbol) => {
+        const { data, error } = await client
+          .from('exchange_rates')
+          .select('value, created_at')
+          .eq('symbol', symbol)
+          .gte('created_at', startDate.toISOString())
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          this.logger.error(`Error fetching history for ${symbol}: ${error.message}`);
+          return { symbol, history: [] };
+        }
+
+        let history = data.map((item) => ({
+          value: item.value,
+          date: item.created_at,
+        }));
+
+        if (symbol === 'USDT') {
+          const dailyAverages = data.reduce((acc, item) => {
+            const dateStr = new Date(item.created_at).toISOString().split('T')[0];
+            if (!acc[dateStr]) {
+              acc[dateStr] = { sum: 0, count: 0 };
+            }
+            acc[dateStr].sum += Number(item.value);
+            acc[dateStr].count += 1;
+            return acc;
+          }, {} as Record<string, { sum: number; count: number }>);
+
+          history = Object.keys(dailyAverages).map((dateStr) => ({
+            value: Number((dailyAverages[dateStr].sum / dailyAverages[dateStr].count).toFixed(2)),
+            date: `${dateStr}T00:00:00.000Z`,
+          })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        }
+
+        const currentPrice = data.length > 0 ? data[data.length - 1].value : 0;
+        const initialPrice = data.length > 0 ? data[0].value : 0;
+        const change = initialPrice !== 0 ? ((currentPrice - initialPrice) / initialPrice) * 100 : 0;
+
+        return {
+          symbol,
+          currentPrice,
+          change: parseFloat(change.toFixed(2)),
+          history,
+        };
+      })
+    );
+
+    return historyData;
+  }
 }

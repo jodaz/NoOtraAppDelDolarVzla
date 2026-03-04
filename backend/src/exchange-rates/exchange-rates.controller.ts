@@ -23,6 +23,11 @@ export class ExchangeRatesController {
     return this.exchangeRatesService.findAll();
   }
 
+  @Get('history')
+  getHistory(@Query('days') days: string) {
+    return this.exchangeRatesService.getHistory(days ? parseInt(days) : 7);
+  }
+
   @Get('binance/average')
   getBinanceAverage(
     @Query('asset') asset: string,

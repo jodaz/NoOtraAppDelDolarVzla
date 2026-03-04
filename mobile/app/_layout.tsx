@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, usePathname } from 'expo-router';
+import Head from 'expo-router/head';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -67,6 +68,19 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
 
+  const getPageTitle = (path: string) => {
+    switch (path) {
+      case '/': return 'Tasas';
+      case '/info': return 'Información';
+      case '/builds': return 'Descargas';
+      case '/history': return 'Historial';
+      case '/modal': return 'Detalles';
+      default: return 'Tasas';
+    }
+  };
+
+  const currentTitle = getPageTitle(pathname);
+
   useEffect(() => {
     if (Platform.OS === 'web' && window.gtag) {
       window.gtag('event', 'page_view', {
@@ -78,11 +92,17 @@ function RootLayoutNav() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        {Platform.OS === 'web' && (
+          <Head>
+            <title>{`AKomo | ${currentTitle}`}</title>
+          </Head>
+        )}
         <GradientBackground>
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="info" options={{ headerShown: false }} />
             <Stack.Screen name="builds" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)/history" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
         </GradientBackground>
