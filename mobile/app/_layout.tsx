@@ -83,6 +83,7 @@ function RootLayoutNav() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="info" options={{ headerShown: false }} />
             <Stack.Screen name="builds" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)/history" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
         </GradientBackground>
