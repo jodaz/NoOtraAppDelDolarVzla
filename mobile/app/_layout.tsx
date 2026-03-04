@@ -7,8 +7,17 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GradientBackground } from '@/components/GradientBackground';
 
 import { useColorScheme } from '@/components/useColorScheme';
+
+import {
+  Zain_300Light,
+  Zain_400Regular, 
+  Zain_700Bold,
+  Zain_800ExtraBold,
+  Zain_900Black
+} from '@expo-google-fonts/zain';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -17,7 +26,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: 'index',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -28,6 +37,11 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Zain_300Light,
+    Zain_400Regular,
+    Zain_700Bold,
+    Zain_800ExtraBold,
+    Zain_900Black,
     ...FontAwesome.font,
   });
 
@@ -64,10 +78,14 @@ function RootLayoutNav() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
+        <GradientBackground>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="info" options={{ headerShown: false }} />
+            <Stack.Screen name="builds" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+        </GradientBackground>
       </ThemeProvider>
     </QueryClientProvider>
   );

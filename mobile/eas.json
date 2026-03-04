@@ -4,8 +4,11 @@
       "android": {
         "buildType": "apk"
       },
+      "ios": {
+        "simulator": true
+      },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://otraappdeldolarenvzla.jodaz.xyz"
+        "EXPO_USE_PNPM": "1"
       }
     },
     "production": {}

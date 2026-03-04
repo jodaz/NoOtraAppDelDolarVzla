@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "OtraAppDelDolarEnVzla",
-    "slug": "otra-app-del-dolar-vzla",
+    "name": "AKomo",
+    "slug": "akomo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
-    "scheme": "otra-app-del-dolar-en-vzla",
+    "scheme": "akomo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jodaz.otraappdeldolarenvzla",
+      "bundleIdentifier": "com.jodaz.akomo",
+      "icon": {
+        "dark": "./assets/images/ios-dark.png"
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -27,12 +30,19 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.jodaz.otraappdeldolarenvzla"
+      "package": "com.jodaz.akomo"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "AKomo",
+      "shortName": "AKomo",
+      "startUrl": "/",
+      "display": "standalone",
+      "backgroundColor": "#336A33",
+      "themeColor": "#336A33",
+      "lang": "es"
     },
     "plugins": [
       "expo-router",
@@ -57,7 +67,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "5bf80979-98ab-40e0-943a-6d76264ca7bf"
+        "projectId": "2fc8f913-a2e4-4b9b-a59a-3754fc6a3b69"
       }
     },
     "owner": "jodaz"

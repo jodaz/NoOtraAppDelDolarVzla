@@ -1,9 +1,4 @@
-/**
- * Learn more about Light and Dark modes:
- * https://docs.expo.io/guides/color-schemes/
- */
-
-import { Text as DefaultText, View as DefaultView } from 'react-native';
+import { Text as DefaultText, View as DefaultView, StyleSheet, TextInput as DefaultTextInput } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from './useColorScheme';
@@ -15,6 +10,7 @@ type ThemeProps = {
 
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
+export type TextInputProps = ThemeProps & DefaultTextInput['props'];
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -30,11 +26,45 @@ export function useThemeColor(
   }
 }
 
+// Helper to resolve font family based on font weight
+const getFontFamily = (baseStyle: any) => {
+  const flattened = StyleSheet.flatten(baseStyle);
+  const weight = flattened?.fontWeight;
+  
+  if (weight === '900') {
+    return 'Zain_900Black';
+  }
+  if (weight === '800') {
+    return 'Zain_800ExtraBold';
+  }
+  if (weight === 'bold' || weight === '700') {
+    return 'Zain_700Bold';
+  }
+  if (weight === '600') {
+    return 'Zain_700Bold';
+  }
+  if (weight === '500') {
+    return 'Zain_400Regular';
+  }
+  return 'Zain_400Regular';
+}
+
 export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
-  return <DefaultText style={[{ color }, style]} {...otherProps} />;
+  const fontFamily = getFontFamily(style);
+
+  return <DefaultText style={[{ color, fontFamily }, style]} {...otherProps} />;
+}
+
+export function TextInput(props: TextInputProps) {
+  const { style, lightColor, darkColor, ...otherProps } = props;
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  
+  const fontFamily = getFontFamily(style);
+
+  return <DefaultTextInput style={[{ color, fontFamily }, style]} {...otherProps} />;
 }
 
 export function View(props: ViewProps) {
