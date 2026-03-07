@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+          cache-dependency-path: mobile/pnpm-lock.yaml
 
       - name: 🏗 Setup Expo
         uses: expo/expo-github-action@v8
