@@ -1,44 +1,72 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Linking, ViewStyle } from 'react-native';
+import { StyleSheet, TouchableOpacity, Linking, ViewStyle, View } from 'react-native';
 import { Text } from '@/components/Themed';
-import { ExternalLink } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 interface CreditsFooterProps {
   style?: ViewStyle;
 }
 
 export function CreditsFooter({ style }: CreditsFooterProps) {
+  const router = useRouter();
+
   const openWebsite = () => {
     Linking.openURL('https://jodaz.xyz');
   };
 
+  const openPrivacy = () => {
+    router.push('/privacy-policy');
+  };
+
   return (
-    <TouchableOpacity onPress={openWebsite} style={[styles.linkContainer, style]}>
-      <Text style={styles.linkUrl}>jodaz.xyz</Text>
-      <ExternalLink size={16} color="#F1C40F" style={styles.linkIcon} />
-    </TouchableOpacity>
+    <View style={[styles.container, style]}>
+      <TouchableOpacity onPress={openPrivacy} style={styles.privacyLink}>
+        <Text style={styles.privacyText}>Privacidad</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.separator}>•</Text>
+
+      <TouchableOpacity onPress={openWebsite} style={styles.linkContainer}>
+        <Text style={styles.linkUrl}>jodaz.xyz</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
   linkContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(241, 196, 15, 0.1)',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(241, 196, 15, 0.3)',
-    alignSelf: 'center',
   },
   linkUrl: {
-    color: '#F1C40F',
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 15,
     fontWeight: '600',
     fontFamily: 'Zain_700Bold',
   },
-  linkIcon: {
-    marginLeft: 8,
+  privacyLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  privacyText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 15,
+    fontFamily: 'Zain_700Bold',
+  },
+  separator: {
+    color: 'rgba(255, 255, 255, 0.3)',
+    fontSize: 14,
   },
 });
