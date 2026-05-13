@@ -4,7 +4,7 @@ import { UpdateExchangeRateDto } from './dto/update-exchange-rate.dto';
 import { UpdateBcvRatesDto } from './dto/update-bcv-rates.dto';
 import { BinanceP2PProvider } from './providers/binance-p2p.provider';
 import { BcvProvider } from './providers/bcv.provider';
-import { SupabaseService } from '../supabase/supabase.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ExchangeRatesService {
@@ -13,30 +13,19 @@ export class ExchangeRatesService {
   constructor(
     private readonly binanceProvider: BinanceP2PProvider,
     private readonly bcvProvider: BcvProvider,
-    private readonly supabaseService: SupabaseService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async findAll() {
     const symbols = ['USD', 'EUR', 'USDT'];
-    const client = this.supabaseService.getClient();
     
     // Fetch the latest entry for each symbol
-    // In a production app with many symbols, an RPC or more complex query would be better.
-    // For 3 symbols, this is efficient enough.
     const latestRates = await Promise.all(
       symbols.map(async (symbol) => {
-        const { data, error } = await client
-          .from('exchange_rates')
-          .select('*')
-          .eq('symbol', symbol)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-        
-        if (error && error.code !== 'PGRST116') { // PGRST116 is 'no rows found'
-          this.logger.error(`Error fetching latest rate for ${symbol}: ${error.message}`);
-        }
-        return data;
+        return this.prisma.exchangeRate.findFirst({
+          where: { symbol },
+          orderBy: { createdAt: 'desc' },
+        });
       })
     );
 
@@ -44,9 +33,9 @@ export class ExchangeRatesService {
 
     const latestUpdate = rates.length > 0
       ? rates.reduce((prev, current) => 
-          new Date(prev.created_at) > new Date(current.created_at) ? prev : current
-        ).created_at
-      : new Date().toISOString();
+          prev.createdAt > current.createdAt ? prev : current
+        ).createdAt
+      : new Date();
 
     return {
       rates: rates.map(rate => ({
@@ -55,13 +44,12 @@ export class ExchangeRatesService {
         value: rate.value.toString().replace('.', ','),
         currency: rate.currency,
       })),
-      lastUpdate: latestUpdate,
+      lastUpdate: latestUpdate.toISOString(),
     };
   }
 
   async updateBcvRates(updateBcvRatesDto: UpdateBcvRatesDto) {
     const { usd, eur } = updateBcvRatesDto;
-    const client = this.supabaseService.getClient();
 
     const newEntries = [
       {
@@ -80,14 +68,9 @@ export class ExchangeRatesService {
       },
     ];
 
-    const { error } = await client
-      .from('exchange_rates')
-      .insert(newEntries);
-
-    if (error) {
-      this.logger.error(`Error inserting BCV rates: ${error.message}`);
-      throw new Error('Failed to save BCV rates');
-    }
+    await this.prisma.exchangeRate.createMany({
+      data: newEntries,
+    });
 
     return { message: 'BCV rates saved successfully (historical entry)' };
   }
@@ -114,14 +97,9 @@ export class ExchangeRatesService {
         },
       ];
 
-      const { error } = await this.supabaseService.getClient()
-        .from('exchange_rates')
-        .insert(newEntries);
-
-      if (error) {
-        this.logger.error(`Error inserting BCV rates during sync: ${error.message}`);
-        throw error;
-      }
+      await this.prisma.exchangeRate.createMany({
+        data: newEntries,
+      });
 
       this.logger.log('Successfully synced BCV rates');
       return rates;
@@ -153,15 +131,15 @@ export class ExchangeRatesService {
     
     // Update DB only if explicitly requested
     if (updateDb && asset === 'USDT' && fiat === 'VES') {
-      await this.supabaseService.getClient()
-        .from('exchange_rates')
-        .upsert({
+      await this.prisma.exchangeRate.create({
+        data: {
           symbol: 'USDT',
           label: 'Binance USDT',
           value: price,
           provider: 'Binance',
           currency: 'VES'
-        }, { onConflict: 'symbol' });
+        }
+      });
     }
 
     return { average: price.toString() };
@@ -177,20 +155,15 @@ export class ExchangeRatesService {
         throw new Error('Received invalid price from Binance');
       }
 
-      const { error } = await this.supabaseService.getClient()
-        .from('exchange_rates')
-        .insert({
+      await this.prisma.exchangeRate.create({
+        data: {
           symbol: asset,
           label: `Binance ${asset}`,
           value: price,
           provider: 'Binance',
           currency: fiat,
-        });
-
-      if (error) {
-        this.logger.error(`Error inserting into exchange_rates: ${error.message}`);
-        throw error;
-      }
+        },
+      });
 
       this.logger.log(`Successfully synced Binance price: ${price}`);
       return { price };
@@ -202,32 +175,35 @@ export class ExchangeRatesService {
 
   async getHistory(days: number = 7) {
     const symbols = ['USD', 'EUR', 'USDT'];
-    const client = this.supabaseService.getClient();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
     const historyData = await Promise.all(
       symbols.map(async (symbol) => {
-        const { data, error } = await client
-          .from('exchange_rates')
-          .select('value, created_at')
-          .eq('symbol', symbol)
-          .gte('created_at', startDate.toISOString())
-          .order('created_at', { ascending: true });
-
-        if (error) {
-          this.logger.error(`Error fetching history for ${symbol}: ${error.message}`);
-          return { symbol, history: [] };
-        }
+        const data = await this.prisma.exchangeRate.findMany({
+          where: {
+            symbol,
+            createdAt: {
+              gte: startDate,
+            },
+          },
+          select: {
+            value: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        });
 
         let history = data.map((item) => ({
-          value: item.value,
-          date: item.created_at,
+          value: Number(item.value),
+          date: item.createdAt.toISOString(),
         }));
 
         if (symbol === 'USDT') {
           const dailyAverages = data.reduce((acc, item) => {
-            const dateStr = new Date(item.created_at).toISOString().split('T')[0];
+            const dateStr = item.createdAt.toISOString().split('T')[0];
             if (!acc[dateStr]) {
               acc[dateStr] = { sum: 0, count: 0 };
             }
@@ -242,8 +218,8 @@ export class ExchangeRatesService {
           })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         }
 
-        const currentPrice = data.length > 0 ? data[data.length - 1].value : 0;
-        const initialPrice = data.length > 0 ? data[0].value : 0;
+        const currentPrice = data.length > 0 ? Number(data[data.length - 1].value) : 0;
+        const initialPrice = data.length > 0 ? Number(data[0].value) : 0;
         const change = initialPrice !== 0 ? ((currentPrice - initialPrice) / initialPrice) * 100 : 0;
 
         return {

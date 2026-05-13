@@ -3,13 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ExchangeRatesModule } from './exchange-rates/exchange-rates.module';
-import { SupabaseModule } from './supabase/supabase.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { BuildsModule } from './builds/builds.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    SupabaseModule,
+    PrismaModule,
     ExchangeRatesModule,
     BuildsModule,
   ],
