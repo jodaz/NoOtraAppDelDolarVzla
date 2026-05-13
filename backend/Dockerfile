@@ -1,13 +1,14 @@
 FROM node:22-alpine AS base
-RUN npm install -g pnpm
 
 FROM base AS build
 WORKDIR /app
+COPY package.json package-lock.json ./
 COPY . .
-RUN pnpm config set only-allow-trusted-dependencies false
-RUN pnpm install --frozen-lockfile
+RUN npm install 
+
+
 RUN npx prisma generate
-RUN pnpm run build
+RUN npm run build
 
 EXPOSE 3000
 CMD [ "node", "dist/main" ]
