@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Build {
+  id        String   @id @default(uuid())
+  version   String
+  url       String
+  platform  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("builds")
+}
+
+model ExchangeRate {
+  id        String   @id @default(uuid())
+  symbol    String
+  label     String
+  value     Decimal  @db.Decimal(20, 8)
+  provider  String
+  currency  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("exchange_rates")
+}

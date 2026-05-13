@@ -1,36 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateBuildDto } from './dto/create-build.dto';
 
 @Injectable()
 export class BuildsService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    const { data, error } = await this.supabaseService
-      .getClient()
-      .from('builds')
-      .select('url, version, platform')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    return data;
+    return this.prisma.build.findMany({
+      select: {
+        url: true,
+        version: true,
+        platform: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   async create(createBuildDto: CreateBuildDto) {
-    const { data, error } = await this.supabaseService
-      .getClient()
-      .from('builds')
-      .insert([createBuildDto])
-      .select();
-
-    if (error) {
-      throw error;
-    }
-
-    return data[0];
+    return this.prisma.build.create({
+      data: createBuildDto,
+    });
   }
 }
